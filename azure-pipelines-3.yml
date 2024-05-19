@@ -1,8 +1,3 @@
-# ASP.NET Core (.NET Framework)
-# Збирайте та тестуйте проекти ASP.NET Core, спрямовані на повний .NET Framework.
-# Додайте кроки, які публікують символи, зберігають артефакти збирання та інше:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
   - main
 
@@ -24,7 +19,7 @@ steps:
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
@@ -33,32 +28,18 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+# Збереження та публікація артефактів
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(build.artifactStagingDirectory)'
-    artifactName: 'drop'
+    artifactName: 'WebApp'
     publishLocation: 'Container'
 
-# Налагодження: перевірка вмісту робочого каталогу перед завантаженням артефактів
-- script: dir $(build.artifactStagingDirectory)
-  displayName: 'Показати вміст каталогу артефактів'
-
 # Конфігурація збирання та розгортання Azure App Service
-- task: DownloadBuildArtifacts@0
-  inputs:
-    buildType: 'current'
-    downloadType: 'single'
-    artifactName: 'drop'
-    downloadPath: '$(System.DefaultWorkingDirectory)'
-
-# Налагодження: перевірка вмісту робочого каталогу після завантаження артефактів
-- script: dir $(System.DefaultWorkingDirectory)
-  displayName: 'Показати вміст робочого каталогу'
-
 - task: AzureRmWebAppDeployment@4
   inputs:
     ConnectionType: 'AzureRM'
-    azureSubscription: 'test'  # Оновіть це значення на своє підключення до Azure
+    azureSubscription: 'test'  # Оновіть це значення на ваше підключення до Azure
     appType: 'webApp'
     WebAppName: 'test08765'  # Замініть 'test08765' на назву вашого веб-додатку Azure
-    packageForLinux: '$(System.DefaultWorkingDirectory)/drop/WebApp.zip'  # При потребі відредагуйте цей шлях
+    package: '$(Pipeline.Workspace)/drop/WebApp.zip'  # Оновлено шлях до пакету
