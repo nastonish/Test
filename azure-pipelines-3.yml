@@ -21,7 +21,7 @@ stages:
             inputs:
               restoreSolution: '$(solution)'
               feedsToUse: 'config'
-              nugetConfigPath: '$(Build.SourcesDirectory)/nuget.config' # Вказуємо шлях до nuget.config
+              nugetConfigPath: '$(Build.SourcesDirectory)/ba-servers/BarkAvenueApi/BarkAvenueApi/nuget.config' # Вказати правильний шлях до nuget.config
 
           - task: VSBuild@1
             inputs:
