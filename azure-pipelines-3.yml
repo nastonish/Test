@@ -5,7 +5,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'  # Update the path to your solution file
+  solution: 'C:\Users\user\source\repos2\Test\ba-servers\BarkAvenueApi\BarkAvenueApi\BarkAvenueApi.csproj'
 
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
@@ -22,11 +22,12 @@ stages:
             inputs:
               restoreSolution: '$(solution)'
 
-          - task: DotNetCoreCLI@2  # Use DotNetCoreCLI task for .NET Core projects
+          - task: VSBuild@1
             inputs:
-              command: 'build'
-              projects: '$(solution)'
-              arguments: '--configuration $(buildConfiguration)'
+              solution: '$(solution)'
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
 
           - task: VSTest@2
             inputs:
