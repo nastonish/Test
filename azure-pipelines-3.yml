@@ -1,87 +1,80 @@
-trigger:
-  - main
-
-pool:
-  vmImage: 'windows-latest'
-
-variables:
-  solution: 'ba-servers/BarkAvenueApi/BarkAvenueApi/BarkAvenueApi.csproj'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  projectPath: 'ba-servers/BarkAvenueApi/BarkAvenueApi'  # Додано шлях до проєкту
-
-stages:
-  - stage: Build
-    jobs:
-      - job: Build
-        displayName: 'Build job'
-        steps:
-          - task: UseDotNet@2
-            inputs:
-              packageType: 'sdk'
-              version: '8.0.x' # Використовуємо версію .NET SDK 8.0
-
-          - task: NuGetToolInstaller@1
-
-          - script: |
-              pushd $(projectPath)
-              dotnet restore --configfile ../nuget.config
-              popd
-            displayName: 'Restore NuGet packages'
-
-          - task: VSBuild@1
-            inputs:
-              solution: '$(solution)'
-              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-              platform: '$(buildPlatform)'
-              configuration: '$(buildConfiguration)'
-
-          - task: VSTest@2
-            inputs:
-              platform: '$(buildPlatform)'
-              configuration: '$(buildConfiguration)'
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'drop'
-
-  - stage: DeployStaging
-    jobs:
-      - deployment: DeployStaging
-        displayName: 'Deploy Staging job'
-        environment: 'Staging'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - download: current
-                  artifact: drop
-
-                - task: AzureRmWebAppDeployment@4
-                  inputs:
-                    ConnectionType: 'AzureRM'
+trigger: 
+  - main 
+ 
+pool: 
+  vmImage: 'windows-latest' 
+ 
+variables: 
+  solution: 'ba-servers/BarkAvenueApi/BarkAvenueApi/BarkAvenueApi.csproj' 
+ 
+  buildPlatform: 'Any CPU' 
+  buildConfiguration: 'Release' 
+ 
+stages: 
+  - stage: Build 
+    jobs: 
+      - job: Build 
+        displayName: 'Build job' 
+        steps: 
+          - task: NuGetToolInstaller@1 
+ 
+          - task: NuGetCommand@2 
+            inputs: 
+              restoreSolution: '$(solution)' 
+ 
+          - task: VSBuild@1 
+            inputs: 
+              solution: '$(solution)' 
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"' 
+              platform: '$(buildPlatform)' 
+              configuration: '$(buildConfiguration)' 
+ 
+          - task: VSTest@2 
+            inputs: 
+              platform: '$(buildPlatform)' 
+              configuration: '$(buildConfiguration)' 
+ 
+          - task: PublishBuildArtifacts@1 
+            inputs: 
+              pathToPublish: '$(Build.ArtifactStagingDirectory)' 
+              artifactName: 'drop' 
+ 
+  - stage: DeployStaging 
+    jobs: 
+      - deployment: DeployStaging 
+        displayName: 'Deploy Staging job' 
+        environment: 'Staging' 
+        strategy: 
+          runOnce: 
+            deploy: 
+              steps: 
+                - download: current 
+                  artifact: drop 
+ 
+                - task: AzureRmWebAppDeployment@4 
+                  inputs: 
+                    ConnectionType: 'AzureRM' 
+                    azureSubscription: 'Azuresubscription1'   
+                    appType: 'webApp' 
+                    WebAppName: 'test08765' 
+                    package: '$(Pipeline.Workspace)/drop/WebApp.zip' 
+ 
+  - stage: DeployProduction 
+    jobs: 
+      - deployment: DeployProduction 
+        displayName: 'Deploy Production job' 
+        environment: 'Production' 
+        strategy: 
+          runOnce: 
+            deploy: 
+              steps: 
+                - download: current 
+                  artifact: drop 
+ 
+                - task: AzureRmWebAppDeployment@4 
+                  inputs: 
+                    ConnectionType: 'AzureRM' 
                     azureSubscription: 'Azuresubscription1'  
-                    appType: 'webApp'
-                    WebAppName: 'test08765'
-                    package: '$(Pipeline.Workspace)/drop/WebApp.zip'
-
-  - stage: DeployProduction
-    jobs:
-      - deployment: DeployProduction
-        displayName: 'Deploy Production job'
-        environment: 'Production'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - download: current
-                  artifact: drop
-
-                - task: AzureRmWebAppDeployment@4
-                  inputs:
-                    ConnectionType: 'AzureRM'
-                    azureSubscription: 'Azuresubscription1' 
-                    appType: 'webApp'
-                    WebAppName: 'test08765'
+                    appType: 'webApp' 
+                    WebAppName: 'test08765' 
                     package: '$(Pipeline.Workspace)/drop/WebApp.zip'
