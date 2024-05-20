@@ -20,12 +20,15 @@ stages:
           - task: NuGetCommand@2
             inputs:
               restoreSolution: '$(solution)'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(Build.SourcesDirectory)/ba-servers/BarkAvenueApi/BarkAvenueApi/nuget.config' # Вказати правильний шлях до nuget.config
 
-          - task: DotNetCoreCLI@2
+          - task: VSBuild@1
             inputs:
-              command: 'build'
-              projects: '$(solution)'
-              arguments: '--configuration $(buildConfiguration)'
+              solution: '$(solution)'
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+              platform: '$(buildPlatform)'
+              configuration: '$(buildConfiguration)'
 
           - task: VSTest@2
             inputs:
@@ -52,7 +55,7 @@ stages:
                 - task: AzureRmWebAppDeployment@4
                   inputs:
                     ConnectionType: 'AzureRM'
-                    azureSubscription: 'Azuresubscription1'  
+                    azureSubscription: 'Azuresubscription1'
                     appType: 'webApp'
                     WebAppName: 'test08765'
                     package: '$(Pipeline.Workspace)/drop/WebApp.zip'
@@ -72,7 +75,7 @@ stages:
                 - task: AzureRmWebAppDeployment@4
                   inputs:
                     ConnectionType: 'AzureRM'
-                    azureSubscription: 'Azuresubscription1' 
+                    azureSubscription: 'Azuresubscription1'
                     appType: 'webApp'
                     WebAppName: 'test08765'
                     package: '$(Pipeline.Workspace)/drop/WebApp.zip'
