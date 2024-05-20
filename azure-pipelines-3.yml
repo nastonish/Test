@@ -5,7 +5,8 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
+  solution: 'ba-servers/BarkAvenueApi/*.sln'  # Змінено шлях до файлу рішення
+
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
