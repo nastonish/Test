@@ -8,6 +8,7 @@ variables:
   solution: 'ba-servers/BarkAvenueApi/BarkAvenueApi/BarkAvenueApi.csproj'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  projectPath: 'ba-servers/BarkAvenueApi/BarkAvenueApi'  # Додано шлях до проєкту
 
 stages:
   - stage: Build
@@ -23,7 +24,9 @@ stages:
           - task: NuGetToolInstaller@1
 
           - script: |
-              dotnet restore --configfile nuget.config
+              pushd $(projectPath)
+              dotnet restore --configfile ../nuget.config
+              popd
             displayName: 'Restore NuGet packages'
 
           - task: VSBuild@1
