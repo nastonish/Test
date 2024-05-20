@@ -28,18 +28,16 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-# Збереження та публікація артефактів
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(build.artifactStagingDirectory)'
     artifactName: 'WebApp'
     publishLocation: 'Container'
 
-# Конфігурація збирання та розгортання Azure App Service
 - task: AzureRmWebAppDeployment@4
   inputs:
     ConnectionType: 'AzureRM'
-    azureSubscription: 'test'  # Оновіть це значення на ваше підключення до Azure
+    azureSubscription: 'test' 
     appType: 'webApp'
-    WebAppName: 'test08765'  # Замініть 'test08765' на назву вашого веб-додатку Azure
-    package: '$(Pipeline.Workspace)/drop/WebApp.zip'  # Оновлено шлях до пакету
+    WebAppName: 'test08765' 
+    package: '$(Pipeline.Workspace)/drop/WebApp.zip' 
