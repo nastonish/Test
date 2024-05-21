@@ -6,6 +6,7 @@ pool:
  
 variables: 
   solution: 'ba-servers/BarkAvenueApi/BarkAvenueApi/BarkAvenueApi.csproj' 
+ 
   buildPlatform: 'Any CPU' 
   buildConfiguration: 'Release' 
  
@@ -21,11 +22,12 @@ stages:
             inputs: 
               restoreSolution: '$(solution)' 
  
-          - task: DotNetCoreCLI@2 
+          - task: VSBuild@1 
             inputs: 
-              command: 'build' 
-              projects: '$(solution)' 
-              arguments: '--configuration $(buildConfiguration)' 
+              solution: '$(solution)' 
+              msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"' 
+              platform: '$(buildPlatform)' 
+              configuration: '$(buildConfiguration)' 
  
           - task: VSTest@2 
             inputs: 
