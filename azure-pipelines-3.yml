@@ -17,7 +17,7 @@ stages:
         steps:
           - checkout: self
 
-          - script: dir $(Build.SourcesDirectory)/ba-servers/BarkAvenueApi/BarkAvenueApi
+          - script: dir "$(Build.SourcesDirectory)\ba-servers\BarkAvenueApi\BarkAvenueApi"
             displayName: 'Check files in project directory'
 
           - task: UseDotNet@2
@@ -32,7 +32,7 @@ stages:
             inputs:
               restoreSolution: '$(solution)'
               feedsToUse: 'config'
-              nugetConfigPath: '$(Build.SourcesDirectory)/ba-servers/BarkAvenueApi/BarkAvenueApi/nuget.config'
+              nugetConfigPath: '$(Build.SourcesDirectory)\ba-servers\BarkAvenueApi\BarkAvenueApi\nuget.config'
 
           - task: DotNetCoreCLI@2
             displayName: 'Build the project'
